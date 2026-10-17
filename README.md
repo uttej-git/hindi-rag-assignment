@@ -67,6 +67,8 @@ The command prints the answers and retrieved sources and saves `outputs/test_res
 ```text
 hindi_rag_assignment_gemini/
 ├── app.py
+├── eval_rerank.py
+├── eval_retriever.py
 ├── requirements.txt
 ├── README.md
 ├── .gitignore
