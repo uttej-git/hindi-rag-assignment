@@ -81,8 +81,15 @@ hindi_rag_assignment_gemini/
 
 ## Notes and limitations
 
-- The pipeline expects the supplied PDF to contain extractable text. Scanned PDFs may require OCR.
-- Section detection is best-effort; some chunks may report `not_detected`.
-- PDF table extraction and retrieval quality should be manually checked against the assignment's six questions.
-- `chroma_db/` and generated JSON outputs are local runtime artifacts and are not included in this ZIP. Run ingestion and tests to recreate them.
-- Never include your Gemini API key in source code, screenshots, output files, or a public repository.
+
+## Notes and limitations
+
+- **PDF extraction:** The pipeline expects the supplied PDF to contain extractable text. Scanned PDFs may require OCR.
+- **Hindi text processing:** Unicode NFC normalization and Hindi-aware sentence splitting are used. Some text extracted from the PDF may contain spacing or character artifacts.
+- **Section detection:** Section headings are detected using a best-effort approach. Some chunks may have incomplete or undetected section names.
+- **Table extraction:** Timeline and awards tables are represented in the supplied document. PDF table extraction and retrieval accuracy may require further improvement.
+- **Retrieval evaluation:** On six test queries, the baseline retrieval achieved Hit@1 of 66.7% and Hit@5 of 100%. Query expansion with Reciprocal Rank Fusion achieved Hit@1 of 83.3% and Hit@5 of 100%. These preliminary results are based on a small evaluation set.
+- **Answer generation:** Answers are generated using Gemini and grounded in retrieved document passages. API quota limits may prevent all six answers from being generated in a single run.
+- **Database and outputs:** The `chroma_db/` directory is excluded from version control and can be recreated by running ingestion. The `outputs/` directory contains generated JSON results and summaries included in this repository; rerunning the pipeline may update them.
+- **API key security:** Store `GEMINI_API_KEY` in a local `.env` file. Never commit API keys or other secrets to the repository. Ensure `.env` is excluded by `.gitignore`.
+- **Future improvements:** Improve retrieval ranking for difficult questions, validate extracted tables, expand the evaluation dataset, and handle API quota errors gracefully.
