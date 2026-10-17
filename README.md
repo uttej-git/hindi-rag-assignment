@@ -79,7 +79,7 @@ hindi_rag_assignment_gemini/
     └── .gitkeep
 ```
 
-## Notes and limitations
+
 
 
 ## Notes and limitations
