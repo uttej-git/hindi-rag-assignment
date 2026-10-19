@@ -359,13 +359,9 @@ EVIDENCE PASSAGES:
         answer = (response.text or "").strip()
         if not answer:
             raise RuntimeError("Gemini returned an empty response.")
-        # Cite the retrieved passages used as context, including score and section.
-        citations = "\n\nSources (retrieved evidence):\n" + "\n".join(
-            f"- page {item['page']} | section: {item['section']} | "
-            f"chunk: {item['chunk_id']} | retrieval score: {item['score']}"
-            for item in retrieved[:3]
-        )
-        return answer + citations, f"Gemini ({GEMINI_MODEL_NAME})"
+        # Return only the generated answer. The application prints citations
+        # separately from metadata stored in ChromaDB.
+        return answer, f"Gemini ({GEMINI_MODEL_NAME})"
     except Exception as exc:
         raise RuntimeError(
             "Gemini answer generation failed. Check your API key, internet connection, "
@@ -381,11 +377,18 @@ def ask(query: str, top_k: int = 8):
         return
 
     answer, generator = generate_answer(query, retrieved)
+    primary = retrieved[0]
+
     print("\nQUERY\n" + query)
     print("\nANSWER\n" + answer)
-    print(f"\nGENERATOR: {generator}\n")
-    print("SOURCES")
-    for item in retrieved:
+    print("\nSOURCE (CITATION)")
+    print(
+        f"page: {primary['page']} | section: {primary['section']} | "
+        f"chunk_id: {primary['chunk_id']} | score: {primary['score']}"
+    )
+    print(f"\nGENERATOR: {generator}")
+    print("\nADDITIONAL SOURCES")
+    for item in retrieved[1:]:
         evidence = item["text"]
         print(
             f"- page: {item['page']} | section: {item['section']} | "
@@ -403,10 +406,17 @@ def run_tests(top_k: int = 8):
         else:
             answer, generator = "No matching chunks found.", "none"
 
+        primary = retrieved[0] if retrieved else None
         record = {
             "query": query,
             "language": language,
             "answer": answer,
+            "citation": ({
+                "page": primary["page"],
+                "section": primary["section"],
+                "chunk_id": primary["chunk_id"],
+                "score": primary["score"],
+            } if primary else None),
             "generator": generator,
             "sources": [
                 {
@@ -422,12 +432,22 @@ def run_tests(top_k: int = 8):
         records.append(record)
 
         print("\n" + "=" * 80)
-        print(f"QUERY ({language}): {query}\nANSWER: {answer}")
-        print("SOURCES:")
-        for item in retrieved:
+        print(f"QUERY ({language})\n{query}")
+        print(f"\nANSWER\n{answer}")
+        print("\nSOURCE (CITATION)")
+        if retrieved:
+            primary = retrieved[0]
             print(
-                f"page={item['page']} | section={item['section']} | "
-                f"chunk_id={item['chunk_id']} | score={item['score']}"
+                f"page: {primary['page']} | section: {primary['section']} | "
+                f"chunk_id: {primary['chunk_id']} | score: {primary['score']}"
+            )
+        else:
+            print("No source citation available; no matching chunks were retrieved.")
+        print("\nADDITIONAL SOURCES")
+        for item in retrieved[1:]:
+            print(
+                f"- page: {item['page']} | section: {item['section']} | "
+                f"chunk_id: {item['chunk_id']} | score: {item['score']}"
             )
 
     OUTPUT_DIR.mkdir(exist_ok=True)

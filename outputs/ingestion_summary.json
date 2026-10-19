@@ -1,5 +1,5 @@
 {
-  "pdf": "C:\\Users\\uttej\\OneDrive\\Desktop\\hindi_rag_assignment_gemini\\data\\Agni_Ki_Udaan_Adhyayan_Sahayika_Hindi.pdf",
+  "pdf": "C:\\Users\\uttej\\OneDrive\\Desktop\\Hindi_RAG Assesment\\data\\Agni_Ki_Udaan_Adhyayan_Sahayika_Hindi.pdf",
   "pages_with_text": 22,
   "chunks_indexed": 37,
   "embedding_model": "intfloat/multilingual-e5-small",
